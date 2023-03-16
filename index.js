@@ -1,35 +1,27 @@
-/**
- * Original work Copyright (c) 2016 Philippe FERDINAND
- * Modified work Copyright (c) 2016 Kam Low
- *
- * @license MIT
- **/
-'use strict';
+'use strict'
 
-var path = require('path');
+const path = require('path')
 
-var doxyparser = require('./src/parser');
-var templates = require('./src/templates');
-var helpers = require('./src/helpers');
+const doxyparser = require('./src/parser')
+const templates = require('./src/templates')
+const helpers = require('./src/helpers')
 
 module.exports = {
-
   /**
    * Default options values.
    **/
   defaultOptions: {
-
-    directory: null,            /** Location of the doxygen files **/
-    output: 'api.md',           /** Output file **/
-    groups: false,              /** Output doxygen groups separately **/
-    noindex: false,             /** Disable generation of the index. Does not work with `groups` option **/
-    anchors: true,              /** Generate anchors for internal links **/
-    language: 'cpp',            /** Programming language **/
-    templates: 'templates',     /** Templates directory **/
-    pages: false,               /** Output doxygen pages separately **/
-    classes: false,             /** Output doxygen classes separately **/
-    output_s: 'api_%s.md',      /** Output file for groups and classes **/
-    logfile: 'objective-moxygen.log',     /** Log file **/
+    directory: null, /** Location of the doxygen files **/
+    output: 'api.md', /** Output file **/
+    groups: false, /** Output doxygen groups separately **/
+    noindex: false, /** Disable generation of the index. Does not work with `groups` option **/
+    anchors: true, /** Generate anchors for internal links **/
+    language: 'cpp', /** Programming language **/
+    templates: 'templates', /** Templates directory **/
+    pages: false, /** Output doxygen pages separately **/
+    classes: false, /** Output doxygen classes separately **/
+    output_s: 'api_%s.md', /** Output file for groups and classes **/
+    logfile: 'objective-moxygen.log', /** Log file **/
 
     filters: {
       members: [
@@ -51,7 +43,7 @@ module.exports = {
         'private-func',
         'private-slot',
         'public-static-func',
-        'private-static-func',
+        'private-static-func'
       ],
       compounds: [
         'namespace',
@@ -59,98 +51,92 @@ module.exports = {
         'struct',
         'union',
         'typedef',
-        'interface',
+        'interface'
         // 'file',
       ]
-    },
+    }
   },
 
   /**
    * Parse files and render the output.
    **/
-  run: function (options) {
-
+  run (options) {
     // Sanitize options
-    if (typeof options.output == "undefined") {
+    if (typeof options.output === 'undefined') {
       if (options.classes || options.groups) {
-        options.output = this.defaultOptions.output_s;
-      }
-      else {
-        options.output = this.defaultOptions.output;
+        options.output = this.defaultOptions.output_s
+      } else {
+        options.output = this.defaultOptions.output
       }
     }
 
     if ((options.classes || options.groups) && options.output.indexOf('%s') === -1) {
-      throw "The `output` file parameter must contain an '%s' for group or class name " +
-        "substitution when `groups` or `classes` are enabled."
+      throw new Error('The `output` file parameter must contain an \'%s\' for group or class name ' +
+      'substitution when `groups` or `classes` are enabled.')
     }
 
-    if (typeof options.templates == "undefined") {
-      options.templates = path.join(__dirname, this.defaultOptions.templates, options.language);
+    if (typeof options.templates === 'undefined') {
+      options.templates = path.join(__dirname, this.defaultOptions.templates, options.language)
     }
 
     // Load templates
-    templates.registerHelpers(options);
-    templates.load(options.templates);
+    templates.registerHelpers(options)
+    templates.load(options.templates)
 
     // Parse files
-    doxyparser.loadIndex(options, function (err, root) {
-      if (err)
-        throw err;
+    doxyparser.loadIndex(options, (err, root) => {
+      if (err) throw err
       // Output groups
       if (options.groups) {
-        var groups = root.toArray('compounds', 'group');
-        if (!groups.length)
-          throw "You have enabled `groups` output, but no groups were " +
-            "located in your doxygen XML files."
+        const groups = root.toArray('compounds', 'group')
+        if (!groups.length) {
+          throw new Error('You have enabled `groups` output, but no groups were located in your doxygen XML files.')
+        }
 
-        groups.forEach(function (group) {
-          group.filterChildren(options.filters, group.id);
+        for (const group of groups) {
+          group.filterChildren(options.filters, group.id)
 
-          var compounds = group.toFilteredArray('compounds');
-          compounds.unshift(group); // insert group at top
-          helpers.writeCompound(group, templates.renderArray(compounds), doxyparser.references, options);
-        });
-      }
-      else if (options.classes) {
-        var rootCompounds = root.toArray('compounds', 'namespace');
-        if (!rootCompounds.length)
-          throw "You have enabled `classes` output, but no classes were " +
-            "located in your doxygen XML files."
-        rootCompounds.forEach(function (comp) {
-          comp.filterChildren(options.filters);
-          var compounds = comp.toFilteredArray();
-          helpers.writeCompound(comp, [templates.render(comp)], doxyparser.references, options);
-          compounds.forEach(function (e) {
+          const compounds = group.toFilteredArray('compounds')
+          compounds.unshift(group) // insert group at top
+          helpers.writeCompound(group, templates.renderArray(compounds), doxyparser.references, options)
+        }
+      } else if (options.classes) {
+        const rootCompounds = root.toArray('compounds', 'namespace')
+        if (!rootCompounds.length) {
+          throw new Error('You have enabled `classes` output, but no classes were located in your doxygen XML files.')
+        }
+        for (const comp of rootCompounds) {
+          comp.filterChildren(options.filters)
+          const compounds = comp.toFilteredArray()
+          helpers.writeCompound(comp, [templates.render(comp)], doxyparser.references, options)
+          for (const e of compounds) {
             e.filterChildren(options.filters)
-            helpers.writeCompound(e, [templates.render(e)], doxyparser.references, options);
-          });
-        });
-      }
-      // Output single file
-      else {
-        root.filterChildren(options.filters);
+            helpers.writeCompound(e, [templates.render(e)], doxyparser.references, options)
+          }
+        }
+      } else { // Output single file
+        root.filterChildren(options.filters)
 
-        var compounds = root.toFilteredArray('compounds');
-        if (!options.noindex)
-          compounds.unshift(root); // insert root at top if index is enabled
-        var contents = templates.renderArray(compounds);
+        const compounds = root.toFilteredArray('compounds')
+        if (!options.noindex) {
+          compounds.unshift(root) // insert root at top if index is enabled
+        }
+        const contents = templates.renderArray(compounds)
         contents.push('Generated by [Objective-Moxygen](https://github.com/arantes555/objective-moxygen)')
-        helpers.writeCompound(root, contents, doxyparser.references, options);
+        helpers.writeCompound(root, contents, doxyparser.references, options)
       }
 
-      if(options.pages){
-        var pages = root.toArray('compounds', 'page');
-        if(!pages.length)
-          throw "You have enabled `pages` output, but no pages were " +
-            "located in your doxygen XML files."
-        pages.forEach(function(page){
-          var compounds = page.toFilteredArray('compounds');
-          compounds.unshift(page);
-          helpers.writeCompound(page, templates.renderArray(compounds), doxyparser.references, options);
-        })
+      if (options.pages) {
+        const pages = root.toArray('compounds', 'page')
+        if (!pages.length) {
+          throw new Error('You have enabled `pages` output, but no pages were located in your doxygen XML files.')
+        }
+        for (const page of pages) {
+          const compounds = page.toFilteredArray('compounds')
+          compounds.unshift(page)
+          helpers.writeCompound(page, templates.renderArray(compounds), doxyparser.references, options)
+        }
       }
-
-    });
-  },
+    })
+  }
 }

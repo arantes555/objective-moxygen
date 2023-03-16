@@ -1,11 +1,11 @@
 #!/usr/bin/env node
-'use strict';
+'use strict'
 
-var logger = require('../src/logger');
-var program = require('commander');
-var assign = require('object-assign');
-var pjson = require('../package.json');
-var app = require('../index.js');
+const logger = require('../src/logger')
+const program = require('commander')
+const assign = require('object-assign')
+const pjson = require('../package.json')
+const app = require('../index.js')
 
 program.version(pjson.version)
   .usage('[options] <doxygen XML directory>')
@@ -20,9 +20,9 @@ program.version(pjson.version)
   .option('-t, --templates <dir>', 'custom templates directory (default: "built-in templates")', String)
   .option('-L, --logfile [file]', 'output log messages to file, (default: console only, default file name: "objective-moxygen.log")')
   .option('-q, --quiet', 'quiet mode', false)
-  .parse(process.argv);
+  .parse(process.argv)
 
-logger.init(program, app.defaultOptions);
+logger.init(program, app.defaultOptions)
 
 if (program.args.length) {
   app.run(assign({}, app.defaultOptions, {
@@ -35,9 +35,8 @@ if (program.args.length) {
     anchors: program.anchors,
     htmlAnchors: program.htmlAnchors,
     language: program.language,
-    templates: program.templates,
-  }));
-}
-else {
-  program.help();
+    templates: program.templates
+  }))
+} else {
+  program.help()
 }

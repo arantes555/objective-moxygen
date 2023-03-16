@@ -4,6 +4,7 @@
   "description": "Doxygen XML to Markdown documentation converter for ObjC",
   "main": "index.js",
   "scripts": {
+    "lint": "standard",
     "release": "release-it",
     "test": "npm run clean && cd example/ && doxygen && cd .. && node bin/objective-moxygen.js --output=example/doc/test.md example/xml",
     "clean": "rm -rf example/doc/*.md example/xml/"
@@ -29,5 +30,8 @@
     "object-assign": "^4.1.1",
     "winston": "^3.2.1",
     "xml2js": "^0.4.19"
+  },
+  "devDependencies": {
+    "standard": "^17.0.0"
   }
 }
