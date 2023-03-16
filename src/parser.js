@@ -272,86 +272,79 @@ module.exports = {
     summary(member, memberdef)
 
     let m = []
-    switch (member.kind) {
-      case 'signal':
-      case 'slot':
-        m = m.concat(['{', member.kind, '} '])
-        break
+    if (member.kind === 'signal' || member.kind === 'slot') {
+      m = m.concat(['{', member.kind, '} '])
+    } else if (member.kind === 'function') {
+      let proto = ''
+      if (memberdef.$.static === 'yes') {
+        proto += '+ '
+      } else {
+        proto += '- '
+      }
 
-      case 'function':
-        m = m.concat(memberdef.$.prot, ' ') // public, private, ...
-        if (memberdef.templateparamlist) {
-          m.push('template<')
-          if (memberdef.templateparamlist.length > 0 && memberdef.templateparamlist.param) {
-            for (let argn = 0; argn < memberdef.templateparamlist[0].param.length; argn++) {
-              const param = memberdef.templateparamlist[0].param[argn]
-              m = m.concat(argn === 0 ? [] : ',')
-              m = m.concat([toMarkdown(param.type)])
-              m = m.concat(param.declname ? [' ', toMarkdown(param.declname)] : [])
-            }
-          }
-          m.push('>  \n')
-        }
-        m = m.concat(memberdef.$.inline === 'yes' ? ['inline', ' '] : [])
-        m = m.concat(memberdef.$.static === 'yes' ? ['static', ' '] : [])
-        m = m.concat(memberdef.$.virt === 'virtual' ? ['virtual', ' '] : [])
-        m = m.concat(toMarkdown(memberdef.type), ' ')
-        m = m.concat(memberdef.$.explicit === 'yes' ? ['explicit', ' '] : [])
-        // m = m.concat(memberdef.name[0]._);
-        m = m.concat(markdown.refLink(member.name, member.refid))
-        m = m.concat('(')
-        if (memberdef.param) {
-          for (let argn = 0; argn < memberdef.param.length; argn++) {
-            const param = memberdef.param[argn]
-            m = m.concat(argn === 0 ? [] : ', ')
-            m = m.concat([toMarkdown(param.type)])
-            m = m.concat(param.declname ? [' ', toMarkdown(param.declname)] : [])
+      proto += `(${memberdef.type[0]._}) `
+
+      const baseName = member.name.split(':')[0]
+
+      proto += baseName
+
+      if (memberdef.param) {
+        const baseLength = proto.length
+        for (let argn = 0; argn < memberdef.param.length; argn++) {
+          const param = memberdef.param[argn]
+          const paramType = param.type[0]._
+          const paramVarName = param.declname[0]._
+          if (argn === 0) {
+            proto += `:(${paramType})${paramVarName}`
+          } else {
+            const paramName = param.attributes[0]._.replace(/^\[/g, '').replace(/\]$/g, '')
+            proto += '\n'
+            const indent = Math.max(0, baseLength - paramName.length)
+            proto += ' '.repeat(indent)
+            proto += `${paramName}:(${paramType})${paramVarName}`
           }
         }
-
-        m = m.concat(')')
-        m = m.concat(memberdef.$.const === 'yes' ? [' ', 'const'] : [])
-        m = m.concat(memberdef.argsstring[0]._.match(/noexcept$/) ? ' noexcept' : '')
-        m = m.concat(memberdef.argsstring[0]._.match(/=\s*delete$/) ? ' = delete' : '')
-        m = m.concat(memberdef.argsstring[0]._.match(/=\s*default/) ? ' = default' : '')
-        break
-
-      case 'variable':
-        m = m.concat(memberdef.$.prot, ' ') // public, private, ...
-        m = m.concat(memberdef.$.static === 'yes' ? ['static', ' '] : [])
-        m = m.concat(memberdef.$.mutable === 'yes' ? ['mutable', ' '] : [])
-        m = m.concat(toMarkdown(memberdef.type), ' ')
-        // m = m.concat(memberdef.name[0]._);
-        m = m.concat(markdown.refLink(member.name, member.refid))
-        break
-
-      case 'property':
-        m = m.concat(['{', member.kind, '} '])
-        m = m.concat(toMarkdown(memberdef.type), ' ')
-        // m = m.concat(memberdef.name[0]._);
-        m = m.concat(markdown.refLink(member.name, member.refid))
-        break
-
-      case 'enum':
-        member.enumvalue = []
-        if (memberdef.enumvalue) {
-          for (const param of memberdef.enumvalue) {
-            const enumvalue = {}
-            copy(enumvalue, 'name', param)
-            copy(enumvalue, 'briefdescription', param)
-            copy(enumvalue, 'detaileddescription', param)
-            summary(enumvalue, param)
-            member.enumvalue.push(enumvalue)
-          }
+      }
+      proto += ';'
+      member.proto = proto
+      return
+    } else if (member.kind === 'variable') {
+      m = m.concat(memberdef.$.prot, ' ') // public, private, ...
+      m = m.concat(memberdef.$.static === 'yes' ? ['static', ' '] : [])
+      m = m.concat(memberdef.$.mutable === 'yes' ? ['mutable', ' '] : [])
+      m = m.concat(toMarkdown(memberdef.type), ' ')
+      // m = m.concat(memberdef.name[0]._);
+      m = m.concat(markdown.refLink(member.name, member.refid))
+    } else if (member.kind === 'property') {
+      let proto = `@property (`
+      // Hacky way of getting at least some attributes, because doxygen does not provide them. Only way to get them for real would be parsing the actual source file
+      const attributes = []
+      if (memberdef.$.accessor) {
+        attributes.push(memberdef.$.accessor)
+      }
+      if (memberdef.$.writable === 'no') {
+        attributes.push('readonly')
+      }
+      proto += attributes.join(', ')
+      proto += `) ${memberdef.type[0]._} ${member.name};`
+      member.proto = proto
+      return
+    } else if (member.kind === 'enum') {
+      member.enumvalue = []
+      if (memberdef.enumvalue) {
+        for (const param of memberdef.enumvalue) {
+          const enumvalue = {}
+          copy(enumvalue, 'name', param)
+          copy(enumvalue, 'briefdescription', param)
+          copy(enumvalue, 'detaileddescription', param)
+          summary(enumvalue, param)
+          member.enumvalue.push(enumvalue)
         }
-        // m.push(member.kind + ' ' + member.name);
-        m = m.concat([member.kind, ' ', markdown.refLink(member.name, member.refid)])
-        break
-
-      default:
-        // m.push(member.kind + ' ' + member.name);
-        m = m.concat([member.kind, ' ', markdown.refLink(member.name, member.refid)])
-        break
+      }
+      // m.push(member.kind + ' ' + member.name);
+      m = m.concat([member.kind, ' ', markdown.refLink(member.name, member.refid)])
+    } else {// m.push(member.kind + ' ' + member.name);
+      m = m.concat([member.kind, ' ', markdown.refLink(member.name, member.refid)])
     }
 
     member.proto = helpers.inline(m)

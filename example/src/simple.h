@@ -18,12 +18,20 @@
 /** This is a simple test property */
 @property (atomic, strong, readonly) NSString* testProperty;
 /** This is another simple test property */
-@property (atomic, strong, readonly) NSString* testProperty2;
+@property (nonatomic, weak) NSString* testProperty2;
 /** This is TestClass init function */
 - (instancetype) initWithTestProperty:(NSString*)testProperty
                          testProperty2:(NSString*)testProperty2;
-/** This is a TestClass method instance */
+/**
+ * This is a TestClass method instance
+ *
+ * @param arg This is arg
+ */
 - (NSString*) testMethod:(NSString*)arg;
+/** This is a TestClass method instance */
+- (NSString*) testMethodWithNoArgs;
+/** This is another TestClass method instance */
+- (NSString*) testMethod2WithArg1:(NSString*)arg1 error:(NSError**)err;
 /** This is a TestClass static method */
 + (instancetype) staticMethod:(NSString*)arg;
 - (NSString*) undocumentedMethod:(NSString*)arg;

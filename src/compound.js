@@ -25,9 +25,7 @@ class Compound {
 
   toArray (type, kind) {
     type = type || 'compounds'
-    let arr = Object.keys(this[type]).map(function (key) {
-      return this[key]
-    }.bind(this[type]))
+    let arr = Object.keys(this[type]).map((key) => this[type][key])
 
     if (type === 'compounds') {
       let all = []
