@@ -16,9 +16,9 @@ program.version(pjson.version)
   .option('-n, --noindex', 'disable generation of the index, ignored with `groups` or `classes`', false)
   .option('-a, --anchors', 'add anchors to internal links', false)
   .option('-H, --html-anchors', 'add html anchors to internal links', false)
-  .option('-l, --language <lang>', 'programming language', String, 'cpp')
+  .option('-l, --language <lang>', 'programming language', String, 'objc')
   .option('-t, --templates <dir>', 'custom templates directory (default: "built-in templates")', String)
-  .option('-L, --logfile [file]', 'output log messages to file, (default: console only, default file name: "moxygen.log")')
+  .option('-L, --logfile [file]', 'output log messages to file, (default: console only, default file name: "objective-moxygen.log")')
   .option('-q, --quiet', 'quiet mode', false)
   .parse(process.argv);
 

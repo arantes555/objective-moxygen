@@ -1,19 +1,19 @@
 {
-  "name": "moxygen",
+  "name": "objective-moxygen",
   "version": "0.8.0",
-  "description": "Doxygen XML to Markdown documentation converter",
+  "description": "Doxygen XML to Markdown documentation converter for ObjC",
   "main": "index.js",
   "scripts": {
     "release": "release-it",
-    "test": "npm run clean && cd example/ && doxygen && cd .. && node bin/moxygen.js --groups --pages --anchors --output=example/doc/api-%s.md example/xml",
+    "test": "npm run clean && cd example/ && doxygen && cd .. && node bin/objective-moxygen.js --output=example/doc/test.md example/xml",
     "clean": "rm -rf example/doc/*.md example/xml/"
   },
   "bin": {
-    "moxygen": "./bin/moxygen.js"
+    "objective-moxygen": "bin/objective-moxygen.js"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/sourcey/moxygen.git"
+    "url": "https://github.com/arantes555/objective-moxygen.git"
   },
   "keywords": [
     "doxygen",
@@ -21,7 +21,7 @@
     "documentation",
     "generator"
   ],
-  "author": "Kam Low",
+  "author": "arantes555",
   "license": "MIT",
   "dependencies": {
     "commander": "^2.19.0",

@@ -1,3 +1,6 @@
 node_modules/
 npm-debug.log
-package-lock.json
+example/doc/*
+!example/doc/.gitkeep
+example/xml/*
+.idea
