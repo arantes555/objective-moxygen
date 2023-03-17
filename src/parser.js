@@ -11,6 +11,37 @@ const markdown = require('./markdown')
 
 const trim = text => text.replace(/^[\s\t\r\n]+|[\s\t\r\n]+$/g, '')
 
+const toText = (element) => {
+  let s = ''
+  if (typeof element === 'string') {
+    s = element
+  } else if (typeof element === 'object') {
+    if (Array.isArray(element)) {
+      for (const value of element) {
+        s += toText(value)
+      }
+    } else {
+      // opening the element
+      if (element['#name'] === 'ref') {
+        return s + toText(element.$$)
+      } else if (element['#name'] === '__text__') {
+        s = element._
+      } else if (element['#name'] !== undefined) {
+        console.error(false, element['#name'] + ': not yet supported.')
+      }
+
+      // recurse on children elements
+      if (element.$$) {
+        s += toText(element.$$)
+      }
+    }
+  } else {
+    console.assert(false)
+  }
+
+  return s
+}
+
 const toMarkdown = (element, context) => {
   let s = ''
   context = context || []
@@ -282,7 +313,7 @@ module.exports = {
         proto += '- '
       }
 
-      proto += `(${memberdef.type[0]._}) `
+      proto += `(${toText(memberdef.type)}) `
 
       const baseName = member.name.split(':')[0]
 
@@ -292,7 +323,7 @@ module.exports = {
         const baseLength = proto.length
         for (let argn = 0; argn < memberdef.param.length; argn++) {
           const param = memberdef.param[argn]
-          const paramType = param.type[0]._
+          const paramType = toText(param.type)
           const paramVarName = param.declname[0]._
           if (argn === 0) {
             proto += `:(${paramType})${paramVarName}`
@@ -326,7 +357,7 @@ module.exports = {
         attributes.push('readonly')
       }
       proto += attributes.join(', ')
-      proto += `) ${memberdef.type[0]._} ${member.name};`
+      proto += `) ${toText(memberdef.type)} ${member.name};`
       member.proto = proto
       return
     } else if (member.kind === 'enum') {
