@@ -25,17 +25,18 @@ program.version(pjson.version)
 logger.init(program, app.defaultOptions)
 
 if (program.args.length) {
+  const options = program.opts()
   app.run(assign({}, app.defaultOptions, {
     directory: program.args[0],
-    output: program.output,
-    groups: program.groups,
-    pages: program.pages,
-    classes: program.classes,
-    noindex: program.noindex,
-    anchors: program.anchors,
-    htmlAnchors: program.htmlAnchors,
-    language: program.language,
-    templates: program.templates
+    output: options.output,
+    groups: options.groups,
+    pages: options.pages,
+    classes: options.classes,
+    noindex: options.noindex,
+    anchors: options.anchors,
+    htmlAnchors: options.htmlAnchors,
+    language: options.language,
+    templates: options.templates
   }))
 } else {
   program.help()

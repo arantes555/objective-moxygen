@@ -25,11 +25,11 @@
   "author": "arantes555",
   "license": "MIT",
   "dependencies": {
-    "commander": "^2.19.0",
-    "handlebars": "^4.0.12",
+    "commander": "^10.0.0",
+    "handlebars": "^4.7.7",
     "object-assign": "^4.1.1",
-    "winston": "^3.2.1",
-    "xml2js": "^0.4.19"
+    "winston": "^3.8.2",
+    "xml2js": "^0.4.23"
   },
   "devDependencies": {
     "standard": "^17.0.0"

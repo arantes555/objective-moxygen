@@ -16,7 +16,7 @@ module.exports = {
     groups: false, /** Output doxygen groups separately **/
     noindex: false, /** Disable generation of the index. Does not work with `groups` option **/
     anchors: true, /** Generate anchors for internal links **/
-    language: 'cpp', /** Programming language **/
+    language: 'objc', /** Programming language **/
     templates: 'templates', /** Templates directory **/
     pages: false, /** Output doxygen pages separately **/
     classes: false, /** Output doxygen classes separately **/
