@@ -66,35 +66,35 @@ module.exports = {
   },
 
   // Replace ref links to point to correct output file if needed
-  resolveRefs (content, compound, references, options) {
+  resolveRefs (content, compound, references, options, filepath) {
     return content.replace(/\{#ref ([^ ]+) #\}/g, (_, refid) => {
       const ref = references[refid]
+      let destcompound
       const page = this.findParent(ref, ['page'])
 
       if (page) {
-        if (page.refid === compound.refid) {
-          return '#' + refid
+        if (page.refid !== compound.refid) {
+          destcompound = page
         }
-        return this.compoundPath(page, options) + '#' + refid
-      }
-
-      if (options.groups) {
-        if (compound.groupid && compound.groupid === ref.groupid) {
-          return '#' + refid
+      } else if (options.groups) {
+        if (!compound.groupid || compound.groupid !== ref.groupid) {
+          destcompound = ref
         }
-        return this.compoundPath(ref, options) + '#' + refid
       } else if (options.classes) {
         const dest = this.findParent(ref, ['namespace', 'class', 'struct'])
-        if (!dest || compound.refid === dest.refid) {
-          return '#' + refid
+        if (dest && compound.refid !== dest.refid) {
+          destcompound = dest
         }
-        return this.compoundPath(dest, options) + '#' + refid
-      } else {
-        if (compound.kind === 'page') {
-          return this.compoundPath(compound.parent, options) + '#' + refid
-        }
-        return '#' + refid
+      } else if (compound.kind === 'page') {
+        destcompound = compound.parent
       }
+
+      if (destcompound) {
+        const destpath = this.compoundPath(destcompound, options)
+        const relative = path.relative(path.dirname(filepath), destpath)
+        return `${relative}#${refid}`
+      }
+      return '#' + refid
     })
   },
 
@@ -111,9 +111,10 @@ module.exports = {
   },
 
   writeCompound (compound, contents, references, options) {
+    const filepath = this.compoundPath(compound, options)
     this.writeFile(
-      this.compoundPath(compound, options),
-      contents.map((content) => this.resolveRefs(content, compound, references, options))
+      filepath,
+      contents.map((content) => this.resolveRefs(content, compound, references, options, filepath))
     )
   },
 
@@ -127,5 +128,24 @@ module.exports = {
       }
       stream.end()
     })
+  },
+
+  slugify (str) {
+    // Split accented characters into components
+    return str.normalize('NFKD')
+      // Remove accents
+      .replace(rCombining, '')
+      // Remove control characters
+      .replace(rControl, '')
+      // Replace special characters
+      .replace(rSpecial, '-')
+      // Remove continuous separators
+      .replace(/\-{2,}/g, '-')
+      // Remove prefixing and trailing separators
+      .replace(/^\-+|\-+$/g, '')
+      // ensure it doesn't start with a number (#121)
+      .replace(/^(\d)/, '_$1')
+      // lowercase
+      .toLowerCase()
   }
 }

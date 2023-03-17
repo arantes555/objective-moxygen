@@ -23,7 +23,7 @@
 - (instancetype) initWithTestProperty:(NSString*)testPropertyArg
                          testProperty2:(OtherClass*)testPropertyArg2;
 /**
- * This is a TestClass method instance
+ * This is a TestClass method instance, returning OtherClass.
  *
  * @param arg This is arg
  */

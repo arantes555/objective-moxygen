@@ -101,7 +101,7 @@ module.exports = {
           helpers.writeCompound(group, templates.renderArray(compounds), doxyparser.references, options)
         }
       } else if (options.classes) {
-        const rootCompounds = root.toArray('compounds', 'namespace')
+        const rootCompounds = root.toArray('compounds', 'class')
         if (!rootCompounds.length) {
           throw new Error('You have enabled `classes` output, but no classes were located in your doxygen XML files.')
         }
