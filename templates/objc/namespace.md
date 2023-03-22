@@ -1,4 +1,5 @@
-# {{kind}} `{{name}}` {{anchor refid}}
+{{anchor refid}}
+# {{kind}} `{{name}}`
 
 {{briefdescription}}
 

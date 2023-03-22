@@ -6,7 +6,8 @@
   "scripts": {
     "lint": "standard",
     "release": "release-it",
-    "test": "npm run clean && cd example/ && doxygen && cd .. && node bin/objective-moxygen.js --output=example/doc/test.md example/xml",
+    "test": "node bin/objective-moxygen.js --output=example/doc/test.md example/xml",
+    "test-full": "npm run clean && cd example/ && doxygen && cd .. && npm run test",
     "clean": "rm -rf example/doc/*.md example/xml/"
   },
   "bin": {

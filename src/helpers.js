@@ -5,6 +5,10 @@ const path = require('path')
 const util = require('util')
 const log = require('./logger').getLogger()
 
+const rControl = /[\u0000-\u001f]/g
+const rSpecial = /[\s~`!@#$%^&*()\-_+=[\]{}|\\;:"'“”‘’–—<>,.?/]+/g
+const rCombining = /[\u0300-\u036F]/g
+
 module.exports = {
   inline (code) {
     if (Array.isArray(code)) {
@@ -81,7 +85,7 @@ module.exports = {
           destcompound = ref
         }
       } else if (options.classes) {
-        const dest = this.findParent(ref, ['namespace', 'class', 'struct'])
+        const dest = this.findParent(ref, ['namespace', 'class', 'struct', 'interface'])
         if (dest && compound.refid !== dest.refid) {
           destcompound = dest
         }
@@ -89,12 +93,17 @@ module.exports = {
         destcompound = compound.parent
       }
 
+      const anchor = options.links === 'refid'
+        ? refid
+        : ['class', 'struct', 'interface'].includes(ref.kind)
+          ? this.slugify(`${ref.kind} \`${ref.name}\``)
+          : this.slugify(`\`${ref.name}\``)
       if (destcompound) {
         const destpath = this.compoundPath(destcompound, options)
         const relative = path.relative(path.dirname(filepath), destpath)
-        return `${relative}#${refid}`
+        return `${relative}#${anchor}`
       }
-      return '#' + refid
+      return `#${anchor}`
     })
   },
 

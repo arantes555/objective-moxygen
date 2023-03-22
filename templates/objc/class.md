@@ -1,4 +1,5 @@
-## {{kind}} `{{name}}` {{anchor refid}}
+{{anchor refid}}
+## {{kind}} `{{name}}`
 
 {{#if basecompoundref}}
 ```objectivec
@@ -12,7 +13,7 @@
 
 | Members | Descriptions |
 |---|---|
-{{#each filtered.members}}| [`{{cell name}}`](#{{refid}}) | {{cell summary}} |
+{{#each filtered.members}}| [`{{cell name}}`]({#ref {{refid}} #}) | {{cell summary}} |
 {{/each}}
 
 {{#each filtered.members}}
