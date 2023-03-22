@@ -1,5 +1,5 @@
 {{anchor refid}}
-## {{kind}} `{{name}}`
+# {{kind}} `{{name}}`
 
 {{#if basecompoundref}}
 ```objectivec
@@ -17,7 +17,7 @@
 {{/each}}
 
 {{#each filtered.members}}
-### `{{name}}` {{anchor refid}}
+## `{{name}}` {{anchor refid}}
 
 ```objectivec
 {{proto}}
