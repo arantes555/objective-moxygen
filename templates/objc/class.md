@@ -2,7 +2,7 @@
 # {{kind}} `{{name}}`
 
 {{#if basecompoundref}}
-```objectivec
+```{{language}}
 @interface {{name}}{{#each basecompoundref}} : {{name}}{{/each}}
 ```
 {{/if}}
@@ -19,7 +19,7 @@
 {{#each filtered.members}}
 ## `{{name}}` {{anchor refid}}
 
-```objectivec
+```{{language}}
 {{proto}}
 ```
 

@@ -85,7 +85,7 @@ const toMarkdown = (element, context) => {
             s = '* '
             break
           case 'programlisting':
-            s = '\n```objectivec\n'
+            s = '\n```{{language}}\n'
             break
           case 'orderedlist':
             context.push(element)

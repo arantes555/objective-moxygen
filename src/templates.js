@@ -73,5 +73,8 @@ module.exports = {
 
     // Generate an anchor for internal links
     handlebars.registerHelper('anchor', name => helpers.getAnchor(name, options))
+
+    // Give the current language name
+    handlebars.registerHelper('language', () => options.language)
   }
 }
